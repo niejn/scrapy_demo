@@ -122,7 +122,7 @@ def ranking_by_exchange():
         df_dict[exchange_dict[key]]=df
     return df_dict
 
-def save_pdf_xlsx(df_dict=None):
+def save_pdf_xlsx(df_dict=None, by_volume=True):
     writer = pd.ExcelWriter('期货统计排名_交易所.xlsx', engine='xlsxwriter')
     workbook = writer.book
 
@@ -166,38 +166,19 @@ def save_pdf_xlsx(df_dict=None):
         header_range = chr(65 + df_cols - 1)
         header_row = str(beg_row+1)
         header_cmd_str = 'A{row}:{header_range}{row}'.format(header_range=header_range, row=header_row)
-        worksheet2.merge_range(header_cmd_str, '{exchange}交易所客户成交统计排名'.format(exchange=key),
+        temp_header_row = ''
+        if by_volume:
+            temp_header_row =  '{exchange}交易所客户成交量统计排名'.format(exchange=key)
+        else:
+            temp_header_row = '{exchange}交易所客户成交金额统计排名'.format(exchange=key)
+        worksheet2.merge_range(header_cmd_str, temp_header_row,
                                header_format)
 
 
         worksheet2.set_column('A:Z', 15, )
         worksheet2.set_row(beg_row, 30)
         beg_row += df_rows+5
-    beg_row = 1
-    worksheet2 = workbook.add_worksheet("期货排名2")
-    for key in df_dict:
-        df = df_dict[key]
-        # worksheet2 = workbook.add_worksheet("期货排名2")
-        for index, row in df.iterrows():  # 获取每行的index、row
-            for col_index, cell in enumerate(row):
-                temp_row = index + 2 + beg_row
-                worksheet2.write(temp_row, col_index, cell, cell_format)
-        for col_num, value in enumerate(df.columns.values):
-            temp_row = beg_row + 1
-            worksheet2.write(temp_row, col_num, value, header_format)
 
-        df_rows = df.shape[0]
-        df_cols = df.shape[1]
-        header_range = chr(65 + df_cols - 1)
-        header_row = str(beg_row+1)
-        header_cmd_str = 'A{row}:{header_range}{row}'.format(header_range=header_range, row=header_row)
-        worksheet2.merge_range(header_cmd_str, '{exchange}交易所客户成交统计排名'.format(exchange=key),
-                               header_format)
-
-
-        worksheet2.set_column('A:Z', 15, )
-        worksheet2.set_row(beg_row, 30)
-        beg_row += df_rows+5
 
     writer.save()
     excel_to_pdf('期货统计排名_交易所.xlsx', 'test05.pdf')
@@ -205,84 +186,7 @@ def save_pdf_xlsx(df_dict=None):
 def main():
     df_dict = ranking_by_exchange()
     save_pdf_xlsx(df_dict)
-    '''par_dict = {"KSRQ": "2018-02-23", "JSRQ": "2018-02-23", 'TJLX': '2', 'ZB': '0', 'JYS': '2',
-                'PM': '20'}
-    lookout_str = 'CXSqlKHCJTJPM_GPXZ'
-    records, meta = getData(par_dict, lookout_str)
-    clean_records = []
-    for a_record in records:
-        clean_records.append(a_record.values)
-    print(clean_records)
-    tab_cols = meta
-    df = pd.DataFrame(clean_records, columns=tab_cols)
-    repl = lambda m: m[-1:]
-    for x in df['客户姓名']:
-        print("**" + x[-1:])
-    df['客户姓名'] = ["**" + x[-1:] for x in df['客户姓名']]
-    print(df['客户姓名'])
-    df['客户姓名'].str.replace(r'[W]+', repl=repl)
-    print(df['客户姓名'])
-    writer = pd.ExcelWriter('期货统计排名_交易所.xlsx', engine='xlsxwriter')
-    print(df.columns)
-    if '客户号' in df.columns:
-        df = df.drop(['客户号', ], axis=1)'''
 
-    # writer = pd.ExcelWriter('期货统计排名_交易所.xlsx', engine='xlsxwriter')
-    # workbook = writer.book
-    #
-    # # Add a header format.
-    # header_format = workbook.add_format({
-    #     'bold': True,
-    #     'text_wrap': False,
-    #
-    #     'border': 1})
-    # header_format.set_align('center')
-    # header_format.set_align('vcenter')
-    # header_format.set_border(1)
-    # header_format.set_font_size(12)
-    #
-    # cell_format = workbook.add_format({
-    #     'bold': False,
-    #     'text_wrap': False,
-    #
-    #     'border': 1})
-    #
-    # # cell_format.set_align()
-    # cell_format.set_align('center')
-    # cell_format.set_align('vcenter')
-    # cell_format.set_border(1)
-    #
-    # # Write the column headers with the defined format.
-    # # for col_num, value in enumerate(df.columns.values):
-    # #     worksheet.write(1, col_num, value, header_format)
-    #
-    # # workbook.add_sheet("won't work")
-    # worksheet2 = workbook.add_worksheet("期货排名2")
-    # for index, row in df.iterrows():  # 获取每行的index、row
-    #     for col_index, cell in enumerate(row):
-    #         worksheet2.write(index + 2, col_index, cell, cell_format)
-    # for col_num, value in enumerate(df.columns.values):
-    #     worksheet2.write(1, col_num, value, header_format)
-    #
-    # df_rows = df.shape[0]
-    # df_cols = df.shape[1]
-    # header_range = chr(65 + df_cols - 1)
-    # worksheet2.merge_range('A1:{header_range}1'.format(header_range=header_range), '期货统计排名， 按所有品种交易量统计排名', header_format)
-    # # Code to make the header red
-    # colour_format = workbook.add_format()
-    # colour_format.set_bg_color('#640000')
-    # colour_format.set_font_color('white')
-    #
-    # # Code to make the body blue
-    # table_body_format = workbook.add_format()
-    # table_body_format.set_bg_color('blue')
-    #
-    #
-    # worksheet2.set_column('A:Z', 15, )
-    # worksheet2.set_row(0, 30)
-    #
-    # writer.save()
-    # excel_to_pdf('期货统计排名_交易所.xlsx', 'test05.pdf')
     return
 
 if __name__ == '__main__':

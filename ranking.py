@@ -4,6 +4,18 @@ import os
 import math
 import pandas as pd
 import matplotlib as plt
+import matplotlib.pyplot as plt
+import io
+from PIL import Image
+import xlsxwriter
+
+from io import BytesIO
+import matplotlib.pyplot as plt
+import re
+import xlsxwriter
+import io
+from PIL import Image
+
 
 def sum_ins_table(temp_sum=None):
     start_col = 1
@@ -45,7 +57,7 @@ def split_ins(df):
         ins_header = ins_df[:(tb_index[0] - 1)]
         # 商品名称 ：铜                  2018-02-23
         ins_name = ins_header.iloc[0, 0]
-        import re
+        # import re
         x = re.split("：", ins_name)
         x = x[1].split()
         instrument = x[0]
@@ -92,10 +104,7 @@ def main():
         date = test['date']
         print(test_df)
 
-        import matplotlib.pyplot as plt
-        import matplotlib.pyplot as plt
-        # coding:utf-8
-        import matplotlib.pyplot as plt
+
         # plt.xticks(rotation=90)
         plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
         plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
@@ -126,13 +135,13 @@ def main():
 
         fig.suptitle('期货品种：{instrument} 时间：{date}'.format(instrument=instrument, date=date)
                      , fontsize=14, fontweight='bold');
-
-        import io
-        from PIL import Image
-        import xlsxwriter
-
-        from io import BytesIO
-        import matplotlib.pyplot as plt
+        #
+        # import io
+        # from PIL import Image
+        # import xlsxwriter
+        #
+        # from io import BytesIO
+        # import matplotlib.pyplot as plt
         imgdata = BytesIO()
 
         fig.savefig(imgdata, format="png")
@@ -140,13 +149,13 @@ def main():
         img_list.append(imgdata)
         # plt.show()
 
-    import xlsxwriter
+    # import xlsxwriter
     workbook = xlsxwriter.Workbook('期货公司排名.xlsx')
     worksheet = workbook.add_worksheet("期货公司排名")
     num = 5
     for img in img_list:
-        import io
-        from PIL import Image
+        # import io
+        # from PIL import Image
 
         #
         # import xlsxwriter
