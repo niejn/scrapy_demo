@@ -137,6 +137,7 @@ def plot_to_excel(df_dict=None):
     for key in df_dict:
         test_df = df_dict[key].copy()
         test_df = test_df.reset_index()
+        print(test_df.columns)
         plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
         plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
         fig, axes = plt.subplots(nrows=2, ncols=1, )
