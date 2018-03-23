@@ -181,7 +181,7 @@ def save_pdf_xlsx(df_dict=None, by_volume=True):
 
 
     writer.save()
-    excel_to_pdf('期货统计排名_交易所.xlsx', 'test05.pdf')
+    excel_to_pdf('期货统计排名_交易所.xlsx', '期货统计排名_交易所.pdf')
     return
 def main():
     df_dict = ranking_by_exchange()
