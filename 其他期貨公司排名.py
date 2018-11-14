@@ -15,6 +15,7 @@ import re
 import xlsxwriter
 import io
 from PIL import Image
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 def sum_ins_table(temp_sum=None):
@@ -90,14 +91,15 @@ def split_ins(df):
         ans_list.append(ans)
     return ans_list
 
-
-def main():
+def sum_each_ins_to_pdf():
     a_file = './excel_files/排名表2018-02-23.csv'
     df = pd.read_csv(a_file, names=range(12), encoding='gbk')
 
     ans = split_ins(df)
     # test = ans[0]
     img_list = []
+    filename = "期货公司排名"
+    pdf = PdfPages('{filename}.pdf'.format(filename=filename))
     for test in ans:
         test_df = test['ranking'][0]
         instrument = test['instrument']
@@ -147,8 +149,9 @@ def main():
         fig.savefig(imgdata, format="png")
         imgdata.seek(0)
         img_list.append(imgdata)
+        pdf.savefig(fig)
         # plt.show()
-
+    pdf.close()
     # import xlsxwriter
     workbook = xlsxwriter.Workbook('期货公司排名.xlsx')
     worksheet = workbook.add_worksheet("期货公司排名")
@@ -181,6 +184,86 @@ def main():
     workbook.close()
 
         # plt.show()
+    return
+
+def sum_whole_exchange():
+    a_file = './excel_files/排名表2018-02-23.csv'
+    df = pd.read_csv(a_file, names=range(12), encoding='gbk')
+    print(df.head())
+    ans = split_ins(df)
+    frames = []
+    for test in ans:
+        each_df = test['ranking'][0]
+        instrument = test['instrument']
+        date = test['date']
+        frames.append(each_df)
+
+    result = pd.concat(frames)
+    first_ans = result.groupby(['期货公司会员简称', ])['成交量', '比上交易日增减'].sum() \
+        .sort_values(by=['成交量'], ascending=False).reset_index().head(20)
+    # print(result)
+    print(first_ans)
+        # first_ans = first_df.groupby(['期货公司会员简称', ])['成交量', '比上交易日增减'].sum() \
+        #     .sort_values(by=['成交量'], ascending=False).reset_index().head(20)
+        # print(test_df)
+    # plt.xticks(rotation=90)
+    test_df = first_ans
+    img_list = []
+    filename = "上期所汇总排名"
+    pdf = PdfPages('{filename}.pdf'.format(filename=filename))
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
+
+    fig, axes = plt.subplots(nrows=2, ncols=1, )
+    fig.set_figheight(6)
+    fig.set_figwidth(8)
+    # test_df['time'] = test_df['time'].apply(lambda x: x.strftime('%Y-%m-%d'))
+    ax = test_df[['期货公司会员简称', '成交量']].plot(
+        x='期货公司会员简称', linestyle='-', marker='o', ax=axes[0])
+    ax2 = test_df[['期货公司会员简称', '比上交易日增减']].plot(
+        x='期货公司会员简称', linestyle='-', marker='o', secondary_y=True, ax=axes[0])
+    test_df[['期货公司会员简称', '成交量']].plot(x='期货公司会员简称', kind='bar'
+                                      , sharex=True
+                                      , ax=axes[1])
+    axes[1].xaxis.set_tick_params(rotation=45)
+
+    for t in axes[1].xaxis.get_ticklabels():
+        temp = t.get_text()
+        temp = temp.strip()
+        # t.set_fontsize(13)
+        if temp == '中信期货':
+            print(t.get_text())
+            # t.set_fontsize(13)
+            t.set_color('red')
+            t.set_weight('extra bold')
+
+    fig.suptitle('期货品种：{instrument} 时间：{date}'.format(instrument='上期所', date=date)
+                 , fontsize=14, fontweight='bold');
+    #
+    # import io
+    # from PIL import Image
+    # import xlsxwriter
+    #
+    # from io import BytesIO
+    # import matplotlib.pyplot as plt
+    imgdata = BytesIO()
+
+    fig.savefig(imgdata, format="png")
+    imgdata.seek(0)
+
+    pdf.savefig(fig)
+    # pdf.savefig(fig)
+    # plt.show()
+    pdf.close()
+    return
+def main():
+    sum_whole_exchange()
+    # a_file = './excel_files/排名表2018-02-23.csv'
+    # df = pd.read_csv(a_file, names=range(12), encoding='gbk')
+    #
+    # ans = split_ins(df)
+    # test = ans[0]
+
     return
 
 
